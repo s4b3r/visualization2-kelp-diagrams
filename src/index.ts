@@ -7,6 +7,7 @@ import { VoronoiTexture } from './voronoi';
 import { WorldTexture } from './world';
 
 const scene = new THREE.Scene();
+scene.background = new THREE.Color( 0xE6E6FF );
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 const renderer = new THREE.WebGLRenderer();
 const controls = new OrbitControls( camera, renderer.domElement);
@@ -23,18 +24,22 @@ scene.add(lightAmbient);
 // Create sphere for voronoi projection
 const voronoiMaterial = new THREE.MeshPhongMaterial({
   map: THREE.ImageUtils.loadTexture('assets/world2.jpg'),
+  transparent : true,
+  opacity: 1,
+  blending: THREE.AdditiveAlphaBlending,
+  side: THREE.DoubleSide
 });
 voronoiMaterial.map.minFilter = THREE.LinearFilter;
 
 const voronoiSphere = new THREE.Mesh(
-  new THREE.SphereGeometry(4.5, 40, 40),
+  new THREE.SphereGeometry(4.5, 100, 100),
   voronoiMaterial
 );
 
 scene.add(voronoiSphere);
 
-// Create sphere for world projection
-const worldMaterial = new THREE.MeshPhongMaterial({
+// Create sphere with country borders
+const worldBordersMaterial = new THREE.MeshPhongMaterial({
   map: THREE.ImageUtils.loadTexture('assets/world2.jpg'),
   transparent : true,
   opacity: 0.7,
@@ -42,17 +47,25 @@ const worldMaterial = new THREE.MeshPhongMaterial({
 });
 voronoiMaterial.map.minFilter = THREE.LinearFilter;
 
-const worldSphere = new THREE.Mesh(
-  new THREE.SphereGeometry(4.51, 40, 40),
-  worldMaterial
+const worldBordersSphere = new THREE.Mesh(
+  new THREE.SphereGeometry(4.51, 100, 100),
+  worldBordersMaterial
 );
 
-const quaternion = new THREE.Quaternion();
-quaternion.setFromAxisAngle( new THREE.Vector3( 0, 1, 0 ), Math.PI / 2 );
-//worldSphere.rotation.x = 0;
-//worldSphere.rotation.set(new THREE.Euler().setFromQuaternion( quaternion ));
+scene.add(worldBordersSphere);
 
-scene.add(worldSphere);
+// Create sphere with world texture
+const worldAlbedoMaterial = new THREE.MeshPhongMaterial({
+  map: THREE.ImageUtils.loadTexture('assets/world2.jpg'),
+});
+voronoiMaterial.map.minFilter = THREE.LinearFilter;
+
+const worldAlbedoSphere = new THREE.Mesh(
+  new THREE.SphereGeometry(4.49, 100, 100),
+  worldAlbedoMaterial
+);
+
+scene.add(worldAlbedoSphere);
 
 //
 
@@ -68,14 +81,19 @@ function setVoronoiTexture(image): void {
   voronoiMaterial.map = texture;
 }
 
-function setWorldTexture(image): void {
-  console.log('Came here');
+function setWorldAlbedoTexture(image): void {
   const texture = new THREE.Texture(image);
   texture.needsUpdate = true;
-  worldMaterial.map = texture;
+  worldAlbedoMaterial.map = texture;
 }
 
-export {setVoronoiTexture, setWorldTexture};
+function setCountryBordersTexture(image): void {
+  const texture = new THREE.Texture(image);
+  texture.needsUpdate = true;
+  worldBordersMaterial.map = texture;
+}
+
+export { setVoronoiTexture, setWorldAlbedoTexture, setCountryBordersTexture };
 
 function animate(): void {
   requestAnimationFrame(animate);
@@ -88,9 +106,19 @@ function render(): void {
 }
 
 const worldTexture = new WorldTexture();
+worldTexture.createAlbedoImage();
 worldTexture.createCountryBordersImage();
 
 const voronoiTexture = new VoronoiTexture();
 voronoiTexture.createImage();
+
+const wireframeToggle = document.getElementById('wireframe');
+wireframeToggle.addEventListener('click', function(value) {
+  if ((<any>wireframeToggle).checked) {
+    worldAlbedoMaterial.wireframe = true;
+  } else {
+    worldAlbedoMaterial.wireframe = false;
+  }
+});
 
 animate();

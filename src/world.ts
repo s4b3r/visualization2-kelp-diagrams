@@ -1,16 +1,27 @@
 import * as d3 from 'd3';
 import * as topojson from 'topojson';
-import { setWorldTexture } from './index';
+import { setWorldAlbedoTexture, setCountryBordersTexture } from './index';
 
 export class WorldTexture {
-    private width = 2048;
-    private height = 1024;
 
     constructor() {
     }
 
     createAlbedoImage() {
-        
+        const worldMapImage = document.createElement("img");
+        worldMapImage.src = 'assets/world2.jpg';
+        const canvas = d3
+            .select("body")
+            .append("canvas")
+            .attr("width", 1200)
+            .attr("height", 800);
+        const context = canvas.node().getContext("2d");
+        const that = this;
+        worldMapImage.onload = function() {
+            context.drawImage(worldMapImage, 0, 0, 1200, 800);
+            setWorldAlbedoTexture(canvas.node());
+            canvas.remove();
+        }
     }
 
 
@@ -18,8 +29,8 @@ export class WorldTexture {
         const canvas = d3
             .select("body")
             .append("canvas")
-            .attr("width", this.width)
-            .attr("height", this.height);
+            .attr("width", 2048)
+            .attr("height", 1024);
         const context = canvas.node().getContext("2d");
         const projection = d3
             .geoEquirectangular()
@@ -39,7 +50,7 @@ export class WorldTexture {
                 path(countries);
                 context.fill();
                 context.stroke();
-                setWorldTexture(canvas.node());
+                setCountryBordersTexture(canvas.node());
                 canvas.remove();
             }
         ).catch(function(error) {

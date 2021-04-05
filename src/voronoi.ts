@@ -21,7 +21,6 @@ export class VoronoiTexture {
 
     createImage(): void {
         this.createVoronoi();
-        this.worldMapToCanvas();
         this.voronoiToCanvas();
     }
     
@@ -62,15 +61,6 @@ export class VoronoiTexture {
                 .attr("r", 2.5));
     }
 
-    worldMapToCanvas() {
-        this.worldMapImage = document.createElement("img");
-        this.worldMapImage.src = 'assets/world2.jpg';
-        const that = this;
-        this.worldMapImage.onload = function() {
-            that.draw();
-        }
-    }
-
     voronoiToCanvas() {
         this.canvas = d3
             .select("body")
@@ -91,9 +81,6 @@ export class VoronoiTexture {
 
     draw() {
         const context = this.canvas.node().getContext("2d");
-        context.fillStyle = "#fff";
-        context.fillRect(0, 0, this.width, this.height);
-        context.drawImage(this.worldMapImage, 0, 0, this.width, this.height);
         context.drawImage(this.voronoiImage, 0, 0, this.width, this.height);
         setVoronoiTexture(this.canvas.node());
         this.canvas.remove();
