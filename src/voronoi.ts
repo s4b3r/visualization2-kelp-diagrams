@@ -1,12 +1,11 @@
 import * as d3 from 'd3';
-import {setTexture} from './index';
-import {Library} from '@observablehq/notebook-stdlib';
+import { setVoronoiTexture } from './index';
+import { Library } from '@observablehq/notebook-stdlib';
 
-export class WorldTexture {
-    private width = 600;
-    private height = 400;
+export class VoronoiTexture {
+    private width = 1200;
+    private height = 800;
     private radius = 20;
-    private WORLD_JSON;
 
     private svg;
     private canvas;
@@ -18,12 +17,6 @@ export class WorldTexture {
     private library = new Library();
 
     constructor() {
-        /*
-        d3.json(
-            "https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_110m_admin_0_countries.geojson"
-        ).then(function(json) {
-            this.WORLD_JSON = json;
-        });*/
     }
 
     createImage(): void {
@@ -102,7 +95,7 @@ export class WorldTexture {
         context.fillRect(0, 0, this.width, this.height);
         context.drawImage(this.worldMapImage, 0, 0, this.width, this.height);
         context.drawImage(this.voronoiImage, 0, 0, this.width, this.height);
-        setTexture(this.canvas.node());
+        setVoronoiTexture(this.canvas.node());
         this.canvas.remove();
         this.svg.remove();
     }

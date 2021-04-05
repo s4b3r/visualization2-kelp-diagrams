@@ -28,6 +28,7 @@
     "@observablehq/notebook-stdlib": "^1.3.0",
     "d3": "latest",
     "three": "latest",
-    "three-orbitcontrols": "latest"
+    "three-orbitcontrols": "latest",
+    "topojson": "^3.0.2"
   }
 }
