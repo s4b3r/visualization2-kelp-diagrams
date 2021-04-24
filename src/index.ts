@@ -3,7 +3,7 @@ import './style.css';
 import * as THREE from 'three';
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls"
 
-import { VoronoiTexture } from './voronoi';
+import { Voronoi } from './voronoi';
 import { WorldTexture } from './world';
 
 const scene = new THREE.Scene();
@@ -109,8 +109,10 @@ const worldTexture = new WorldTexture();
 worldTexture.createAlbedoImage();
 worldTexture.createCountryBordersImage();
 
-const voronoiTexture = new VoronoiTexture();
-voronoiTexture.createImage();
+const voronoi = new Voronoi(scene);
+// do we need these datapoints outside of the voronoi class?
+const datapoints = voronoi.mapDataPoints2D()
+voronoi.createImage();
 
 const wireframeToggle = document.getElementById('wireframe');
 wireframeToggle.addEventListener('click', function(value) {
