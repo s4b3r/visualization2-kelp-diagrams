@@ -8,7 +8,8 @@
         "preserveConstEnums": true,
         "suppressImplicitAnyIndexErrors": true,
         "outDir": "./lib/",
-        "sourceMap": true
+        "sourceMap": true,
+        "resolveJsonModule": true
     },
     "exclude": [
         "node_modules",

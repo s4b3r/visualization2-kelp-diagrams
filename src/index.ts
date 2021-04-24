@@ -5,7 +5,11 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls"
 
 import { Voronoi } from './voronoi';
 import { WorldTexture } from './world';
+import { Linking } from './linking';
+import { Data, I2DCountryData, I3DCountryData } from './data';
+import * as rawdata from '../data.json';
 
+// Scene setup
 const scene = new THREE.Scene();
 scene.background = new THREE.Color( 0xE6E6FF );
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -109,10 +113,13 @@ const worldTexture = new WorldTexture();
 worldTexture.createAlbedoImage();
 worldTexture.createCountryBordersImage();
 
-const voronoi = new Voronoi(scene);
-// do we need these datapoints outside of the voronoi class?
-const datapoints = voronoi.mapDataPoints2D()
-voronoi.createImage();
+const imageWidth = 1200;
+const imageHeight = 800;
+const voronoi = new Voronoi(imageWidth, imageHeight);
+const linking = new Linking(scene, 4.5);
+
+// Collect the data
+const data = new Data(rawdata, 4.5, imageWidth, imageHeight)
 
 const wireframeToggle = document.getElementById('wireframe');
 wireframeToggle.addEventListener('click', function(value) {
@@ -121,6 +128,47 @@ wireframeToggle.addEventListener('click', function(value) {
   } else {
     worldAlbedoMaterial.wireframe = false;
   }
+});
+
+var checkboxes = document.querySelectorAll("input[type=checkbox]");
+let enabledSettings = []
+
+let data2d: I2DCountryData[];
+checkboxes.forEach(function(checkbox) {
+  checkbox.addEventListener('change', function() {
+    enabledSettings = 
+      Array.from(checkboxes) // Convert checkboxes to an array to use filter and map.
+      .filter(i => (<any>i).checked) // Use Array.filter to remove unchecked checkboxes.
+      .map(i => (<any>i).value) // Use Array.map to extract only the checkbox values from the array of objects.
+    data2d = [];
+    enabledSettings.forEach(enabledSet => {
+      switch(enabledSet) {
+        case 'EU': {
+          data2d.push(...data.eu_2d);
+          linking.createLinksForSet(data.eu_3d, new THREE.Color( 1, 0, 0 ));
+          break;
+        }
+        case 'NATO': {
+          data2d.concat(data.eu_2d);
+          break;
+        }
+        case 'schengen': {
+          data2d.concat(data.eu_2d);
+          break;
+        }
+        case 'wto': {
+          data2d.concat(data.eu_2d);
+          break;
+        }
+        case 'uncfcc': {
+          data2d.push(...data.uncfcc_2d);
+          linking.createLinksForSet(data.uncfcc_3d, new THREE.Color( 1, 0, 0 ));
+          break;
+        }
+      }
+    });
+    voronoi.createImage(data2d);
+  })
 });
 
 animate();
