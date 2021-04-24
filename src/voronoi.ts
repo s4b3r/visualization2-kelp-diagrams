@@ -12,33 +12,32 @@ export class Voronoi {
     private height = 800;
     private radius = 10;
 
-    private svg;
     private canvas;
-
-    private voronoiImage;
+    private svgs = [];
 
     private library = new Library();
+
+    private countries = {};
 
     constructor(imageWidth, imageHeight) {
         this.width = imageWidth;
         this.height = imageHeight;
     }
 
-    createImage(datapoints2d: I2DCountryData[]): void {
-        this.createVoronoi(datapoints2d);
-        this.voronoiToCanvas();
-    }
-    
-    createVoronoi(datapoints2d: I2DCountryData[]): void {
-        this.svg = d3.select("body").append("svg")
+    createVoronoi(datapoints2d: I2DCountryData[], color: string): void {
+        const svg = d3.select("body").append("svg")
         .attr("viewBox", [0, 0, this.width, this.height])
         .attr("stroke-width", 2);
+
+        datapoints2d.forEach((dp) => {
+            this.countries[dp.country_code] = this.countries[dp.country_code] ? this.countries[dp.country_code] + 1 : 1
+        })
 
         const voronoi = d3.Delaunay
             .from(datapoints2d, d => d.x, d => d.y)
             .voronoi([0, 0, this.width, this.height]);
 
-        const cell = this.svg.append("defs")
+        const cell = svg.append("defs")
             .selectAll("clipPath")
             .data(datapoints2d)
             .join("clipPath")
@@ -46,7 +45,7 @@ export class Voronoi {
                 .append("path")
                 .attr("d", (d, i) => voronoi.renderCell(i));
 
-        const circle = this.svg.append("g")
+        const circle = svg.append("g")
             .selectAll("g")
             .data(datapoints2d)
             .join("g")
@@ -54,35 +53,47 @@ export class Voronoi {
             .append("g")
             .attr("transform", d => `translate(${d.x},${d.y})`)
             .call(g => g.append("circle")
-                .attr("r", this.radius)
-                .attr("fill", (d, i) => d3.schemeCategory10[i % 10]))
+                .attr("r", d => this.radius - (this.countries[d.country_code] ? this.countries[d.country_code] * 2 : 0))
+                .attr("fill", color))
             .call(g => g.append("circle")
                 .attr("r", 2.5));
+
+        this.svgs.push(svg);
     }
 
     voronoiToCanvas() {
         this.canvas = d3
-            .select("body")
-            .append("canvas")
-            .attr("width", this.width)
-            .attr("height", this.height);
-
-        const svgNode = this.svg.node();
-        const svgData = (new XMLSerializer()).serializeToString(svgNode);
-
-        this.voronoiImage = document.createElement("img");
-        this.voronoiImage.setAttribute("src", "data:image/svg+xml;base64," + window.btoa(unescape(encodeURIComponent(svgData))) );
-        const that = this;
-        this.voronoiImage.onload = function() {
-            that.draw();
-        }    
+        .select("body")
+        .append("canvas")
+        .attr("width", this.width)
+        .attr("height", this.height);
+        const context = this.canvas.node().getContext("2d");
+        setVoronoiTexture(this.canvas.node());
+        this.svgs.forEach((svg, i) => {            
+            const svgNode = svg.node();
+            const svgData = (new XMLSerializer()).serializeToString(svgNode);
+            const voronoiImage = document.createElement("img");
+            voronoiImage.setAttribute("src", "data:image/svg+xml;base64," + window.btoa(unescape(encodeURIComponent(svgData))) );
+            const that = this;
+            voronoiImage.onload = function() {
+                context.drawImage(voronoiImage, 0, 0, that.width, that.height); 
+                setVoronoiTexture(that.canvas.node());
+                if (i == that.svgs.length - 1) {
+                    that.teardown()
+                }
+            }
+        });
+        if (this.svgs.length == 0) {
+            this.teardown()
+        }
     }
 
-    draw() {
-        const context = this.canvas.node().getContext("2d");
-        context.drawImage(this.voronoiImage, 0, 0, this.width, this.height);
-        setVoronoiTexture(this.canvas.node());
+    teardown() {
         this.canvas.remove();
-        this.svg.remove();
+        this.svgs.forEach((svg) => {
+            svg.remove()
+            this.svgs = [];
+            this.countries = {};
+        })
     }
 }
