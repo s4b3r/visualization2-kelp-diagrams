@@ -11,7 +11,7 @@ export class Linking {
 
     constructor(scene: THREE.Scene, radius: number) {
         this.scene = scene;
-        this.radius = 4.5;
+        this.radius = radius;
         this.links = new THREE.Group();
         this.scene.add(this.links)
     }
