@@ -133,41 +133,37 @@ wireframeToggle.addEventListener('click', function(value) {
 var checkboxes = document.querySelectorAll("input[type=checkbox]");
 let enabledSettings = []
 
-let data2d: I2DCountryData[];
 checkboxes.forEach(function(checkbox) {
   checkbox.addEventListener('change', function() {
     enabledSettings = 
-      Array.from(checkboxes) // Convert checkboxes to an array to use filter and map.
-      .filter(i => (<any>i).checked) // Use Array.filter to remove unchecked checkboxes.
-      .map(i => (<any>i).value) // Use Array.map to extract only the checkbox values from the array of objects.
-    data2d = [];
+      Array.from(checkboxes)
+      .filter(i => (<any>i).checked)
+      .map(i => (<any>i).value)
+    linking.clear();
     enabledSettings.forEach(enabledSet => {
       switch(enabledSet) {
         case 'EU': {
-          data2d.push(...data.eu_2d);
+          voronoi.createVoronoi(data.eu_2d, "rgb(255,0,0)");
           linking.createLinksForSet(data.eu_3d, new THREE.Color( 1, 0, 0 ));
           break;
         }
         case 'NATO': {
-          data2d.concat(data.eu_2d);
           break;
         }
         case 'schengen': {
-          data2d.concat(data.eu_2d);
           break;
         }
         case 'wto': {
-          data2d.concat(data.eu_2d);
           break;
         }
         case 'uncfcc': {
-          data2d.push(...data.uncfcc_2d);
-          linking.createLinksForSet(data.uncfcc_3d, new THREE.Color( 1, 0, 0 ));
+          voronoi.createVoronoi(data.uncfcc_2d, "rgb(0,255,0)");
+          linking.createLinksForSet(data.uncfcc_3d, new THREE.Color( 0, 1, 0 ));
           break;
         }
       }
     });
-    voronoi.createImage(data2d);
+    voronoi.voronoiToCanvas();
   })
 });
 

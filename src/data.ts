@@ -40,17 +40,17 @@ export class Data {
         this.uncfcc_2d = this.uncfcc.map((country) => this.mapTo2D(country, imageWidth, imageHeight))
     }   
     
-    mapTo3D(datapoints: ICountryData, radius: number): I3DCountryData {
-        let datapoints3D = <I3DCountryData>datapoints;
-        var x = -(
+    mapTo3D(datapoint: ICountryData, radius: number): I3DCountryData {
+        let datapoints3D: I3DCountryData = Object.assign({}, datapoint, {x:0, y:0, z:0});
+        const x = -(
             radius *
-            Math.sin((90 - datapoints.latitude) * (Math.PI / 180)) *
-            Math.cos((datapoints.longitude + 180) * (Math.PI / 180))
+            Math.sin((90 - datapoint.latitude) * (Math.PI / 180)) *
+            Math.cos((datapoint.longitude + 180) * (Math.PI / 180))
         );
-        var y = radius * Math.cos((90 - datapoints.latitude) * (Math.PI / 180));
-        var z = radius *
-            Math.sin((90 - datapoints.latitude) * (Math.PI / 180)) *
-            Math.sin((datapoints.longitude + 180) * (Math.PI / 180));
+        const z = radius *
+            Math.sin((90 - datapoint.latitude) * (Math.PI / 180)) *
+            Math.sin((datapoint.longitude + 180) * (Math.PI / 180));
+        const y = radius * Math.cos((90 - datapoint.latitude) * (Math.PI / 180));
         datapoints3D.x = x;
         datapoints3D.y = y;
         datapoints3D.z = z;
@@ -58,7 +58,7 @@ export class Data {
     }
 
     mapTo2D(datapoint: ICountryData, imageWidth: number, imageHeight: number): I2DCountryData {
-        let datapoints2D = <I2DCountryData>datapoint;
+        let datapoints2D: I2DCountryData = Object.assign({}, datapoint, {x:0, y:0});
         const x =  ((imageWidth/360.0) * (180 + datapoint.longitude));
         const y =  ((imageHeight/180.0) * (90 - datapoint.latitude));
         datapoints2D.x = x;
