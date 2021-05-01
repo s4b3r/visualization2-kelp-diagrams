@@ -8,6 +8,7 @@ import { WorldTexture } from './world';
 import { Linking } from './linking';
 import { Data, I2DCountryData, I3DCountryData } from './data';
 import * as rawdata from '../data.json';
+import { Dijkstra } from './dijkstra';
 
 // Scene setup
 const scene = new THREE.Scene();
@@ -133,6 +134,8 @@ wireframeToggle.addEventListener('click', function(value) {
 var checkboxes = document.querySelectorAll("input[type=checkbox]");
 let enabledSettings = []
 
+let dijkstra = new Dijkstra()
+
 checkboxes.forEach(function(checkbox) {
   checkbox.addEventListener('change', function() {
     enabledSettings = 
@@ -144,7 +147,7 @@ checkboxes.forEach(function(checkbox) {
       switch(enabledSet) {
         case 'EU': {
           voronoi.createVoronoi(data.eu_2d, "rgb(255,0,0)");
-          linking.createLinksForSet(data.eu_3d, new THREE.Color( 1, 0, 0 ));
+          linking.createLinksForSet(dijkstra.mapToDijkstra(data.eu_3d), new THREE.Color( 1, 0, 0 ), 0.5);
           break;
         }
         case 'NATO': {
@@ -158,7 +161,7 @@ checkboxes.forEach(function(checkbox) {
         }
         case 'uncfcc': {
           voronoi.createVoronoi(data.uncfcc_2d, "rgb(0,255,0)");
-          linking.createLinksForSet(data.uncfcc_3d, new THREE.Color( 0, 1, 0 ));
+          linking.createLinksForSet(dijkstra.mapToDijkstra(data.uncfcc_3d), new THREE.Color( 0, 1, 0 ), 0.55);
           break;
         }
       }

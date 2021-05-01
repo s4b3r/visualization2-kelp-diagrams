@@ -1,5 +1,5 @@
 
-interface ICountryData {
+export interface ICountryData {
     country_code: string
     country: string
     latitude: number
