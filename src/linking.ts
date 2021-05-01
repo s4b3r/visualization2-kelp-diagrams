@@ -21,18 +21,17 @@ export class Linking {
     }
 
     createLinksForSet(datapoints3d: I3DCountryDijkstraData[], color: THREE.Color, altitude: number): void {
-        for (let i = 0; i < datapoints3d.length - 1; i++) {
+        for (let i = 0; i < datapoints3d.length; i++) {
             const indexConnectedPoint = datapoints3d[i].descendent;
-            console.log(indexConnectedPoint)
             this.createTube(datapoints3d[i], datapoints3d[indexConnectedPoint], color, altitude);
         }
     }
 
     createTube(startpoint: I3DCountryDijkstraData, endpoint: I3DCountryDijkstraData, color: THREE.Color, altitude: number): void {
+            altitude = altitude * this.getDistance(startpoint, endpoint) / 4;
             const start = new THREE.Vector3(startpoint.x, startpoint.y, startpoint.z);
             const end = new THREE.Vector3(endpoint.x, endpoint.y, endpoint.z);
     
-            const clamp = (num, min, max) => (num <= min ? min : num >= max ? max : num);
             var geoInterpolator = d3.geoInterpolate(
                 [startpoint.longitude, startpoint.latitude],
                 [endpoint.longitude, endpoint.latitude]);
@@ -68,5 +67,9 @@ export class Linking {
             radius * Math.cos(phi),
             radius * Math.sin(phi) * Math.sin(theta)
         );
+    }
+    
+    getDistance(datapoints1: I3DCountryDijkstraData, datapoints2: I3DCountryDijkstraData) : number {
+        return Math.sqrt(Math.pow((datapoints1.x - datapoints2.x), 2) + Math.pow((datapoints1.y - datapoints2.y), 2) + Math.pow((datapoints1.z - datapoints2.z), 2))
     }
 }

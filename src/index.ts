@@ -12,7 +12,7 @@ import { Dijkstra } from './dijkstra';
 
 // Scene setup
 const scene = new THREE.Scene();
-scene.background = new THREE.Color( 0xE6E6FF );
+scene.background = new THREE.Color( 0xF );
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 const renderer = new THREE.WebGLRenderer();
 const controls = new OrbitControls( camera, renderer.domElement);
@@ -20,10 +20,8 @@ controls.update();
 
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
-const lightDirectional = new THREE.DirectionalLight(0xffffff, 1.0);
-lightDirectional.position.set(100, 100, 100);
-scene.add(lightDirectional);
 const lightAmbient = new THREE.AmbientLight( 0x404040 ); 
+lightAmbient.intensity = 4;
 scene.add(lightAmbient);
 
 // Create sphere for voronoi projection
@@ -146,8 +144,8 @@ checkboxes.forEach(function(checkbox) {
     enabledSettings.forEach(enabledSet => {
       switch(enabledSet) {
         case 'EU': {
-          voronoi.createVoronoi(data.eu_2d, "rgb(255,0,0)");
-          linking.createLinksForSet(dijkstra.mapToDijkstra(data.eu_3d), new THREE.Color( 1, 0, 0 ), 0.5);
+          voronoi.createVoronoi(data.eu_2d, "rgb(255,0,100)");
+          linking.createLinksForSet(dijkstra.mapToDijkstra(data.eu_3d), new THREE.Color( 1.00, 0.00, 0.392 ), 1);
           break;
         }
         case 'NATO': {
@@ -160,8 +158,8 @@ checkboxes.forEach(function(checkbox) {
           break;
         }
         case 'uncfcc': {
-          voronoi.createVoronoi(data.uncfcc_2d, "rgb(0,255,0)");
-          linking.createLinksForSet(dijkstra.mapToDijkstra(data.uncfcc_3d), new THREE.Color( 0, 1, 0 ), 0.55);
+          voronoi.createVoronoi(data.uncfcc_2d, "rgb(255, 255, 100)");
+          linking.createLinksForSet(dijkstra.mapToDijkstra(data.uncfcc_3d), new THREE.Color( 1, 1, 0.392 ), 1.1);
           break;
         }
       }

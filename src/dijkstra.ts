@@ -44,12 +44,12 @@ export class Dijkstra {
             let minDistance = Infinity
             let index = 0
             let distance = Infinity
+            this.visited.push(idxStart)
             this.datapoints3DDijkstra.forEach((datapointEnd, idxEnd) => {
-                if (!(idxEnd == idxStart) && !(this.visited.includes(idxEnd))) {
+                if (!(this.visited.includes(idxEnd))) {
                     distance = this.getDistance(this.datapoints3DDijkstra[idxStart], datapointEnd)
                     // store the distance if it is smaller as the current one
                     if (distance < this.datapoints3DDijkstra[idxEnd].distance) {
-                        console.log('enter')
                         this.datapoints3DDijkstra[idxEnd].distance = distance;
                         this.datapoints3DDijkstra[idxEnd].descendent = idxStart;
                     }
@@ -60,7 +60,6 @@ export class Dijkstra {
                     }
                 }
             })
-            this.visited.push(idxStart)
             this.dijkstra(index);
         }
     }
