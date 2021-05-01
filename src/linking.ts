@@ -22,10 +22,9 @@ export class Linking {
 
     createLinksForSet(datapoints3d: I3DCountryDijkstraData[], color: THREE.Color, altitude: number): void {
         for (let i = 0; i < datapoints3d.length - 1; i++) {
-            const indexConnectedPoint = datapoints3d[i].connectedPoint
-            if (!(indexConnectedPoint == -1)) {
-                this.createTube(datapoints3d[i], datapoints3d[indexConnectedPoint], color, altitude);
-            }
+            const indexConnectedPoint = datapoints3d[i].descendent;
+            console.log(indexConnectedPoint)
+            this.createTube(datapoints3d[i], datapoints3d[indexConnectedPoint], color, altitude);
         }
     }
 
