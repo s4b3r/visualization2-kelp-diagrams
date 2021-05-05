@@ -144,22 +144,53 @@ checkboxes.forEach(function(checkbox) {
     enabledSettings.forEach(enabledSet => {
       switch(enabledSet) {
         case 'EU': {
-          voronoi.createVoronoi(data.eu_2d, "rgb(255,0,100)");
-          linking.createLinksForSet(dijkstra.mapToDijkstra(data.eu_3d), new THREE.Color( 1.00, 0.00, 0.392 ), 1);
+          voronoi.createVoronoi(data.datapoints_2d.eu_2d, "rgb(255,0,100)");
+          linking.createLinksForSet(dijkstra.mapToDijkstra(data.datapoints_3d.eu_3d), new THREE.Color("rgb(255,0,100)" ), 1);
           break;
         }
         case 'NATO': {
+          voronoi.createVoronoi(data.datapoints_2d.nato_2d, "rgb(188,156,244)");
+          linking.createLinksForSet(dijkstra.mapToDijkstra(data.datapoints_3d.nato_3d), new THREE.Color( "rgb(188,156,244)" ), 1);
           break;
         }
-        case 'schengen': {
+        case 'OECD': {
+          voronoi.createVoronoi(data.datapoints_2d.oecd_2d, "rgb(150,254,28)");
+          linking.createLinksForSet(dijkstra.mapToDijkstra(data.datapoints_3d.oecd_3d), new THREE.Color( "rgb(150,254,28)" ), 1);
           break;
         }
-        case 'wto': {
+        case 'G7': {
+          voronoi.createVoronoi(data.datapoints_2d.g7_2d, "rgb(255, 172, 87)");
+          linking.createLinksForSet(dijkstra.mapToDijkstra(data.datapoints_3d.g7_3d), new THREE.Color( "rgb(255, 172, 87)"), 1);
+          break;
+        }
+        case 'UN': {
+          voronoi.createVoronoi(data.datapoints_2d.un_2d, "rgb(58, 182, 202)");
+          linking.createLinksForSet(dijkstra.mapToDijkstra(data.datapoints_3d.un_3d), new THREE.Color( "rgb(58, 182, 202)" ), 1);
+          break;
+        }
+        case 'OSCE': {
+          voronoi.createVoronoi(data.datapoints_2d.osce_2d, "rgb(10,10,10)");
+          linking.createLinksForSet(dijkstra.mapToDijkstra(data.datapoints_3d.osce_3d), new THREE.Color( "rgb(10,10,10)"), 1);
+          break;
+        }
+        case 'COE': {
+          voronoi.createVoronoi(data.datapoints_2d.coe_2d, "rgb(13,99,193)");
+          linking.createLinksForSet(dijkstra.mapToDijkstra(data.datapoints_3d.coe_3d), new THREE.Color( "rgb(13,99,193)"), 1);
+          break;
+        }
+        case 'ILO': {
+          voronoi.createVoronoi(data.datapoints_2d.ilo_2d, "rgb(2, 114, 15)");
+          linking.createLinksForSet(dijkstra.mapToDijkstra(data.datapoints_3d.ilo_3d), new THREE.Color( "rgb(2, 114, 15)"), 1);
+          break;
+        }
+        case 'INTERPOL': {
+          voronoi.createVoronoi(data.datapoints_2d.interpol_2d, "rgb(164, 54, 35)");
+          linking.createLinksForSet(dijkstra.mapToDijkstra(data.datapoints_3d.interpol_3d), new THREE.Color( "rgb(164, 54, 35)" ), 1);
           break;
         }
         case 'uncfcc': {
-          voronoi.createVoronoi(data.uncfcc_2d, "rgb(255, 255, 100)");
-          linking.createLinksForSet(dijkstra.mapToDijkstra(data.uncfcc_3d), new THREE.Color( 1, 1, 0.392 ), 1.1);
+          voronoi.createVoronoi(data.datapoints_2d.uncfcc_2d, "rgb(10, 58, 18)");
+          linking.createLinksForSet(dijkstra.mapToDijkstra(data.datapoints_3d.uncfcc_3d), new THREE.Color( "rgb(10, 58, 18)" ), 1.1);
           break;
         }
       }
