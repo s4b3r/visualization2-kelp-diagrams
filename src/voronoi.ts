@@ -14,7 +14,7 @@ import { I2DCountryData } from "./data";
 export class Voronoi {
   private width = 1200;
   private height = 800;
-  private radius = 10;
+  private radius = 18;
 
   private canvas;
   private svgs = [];
@@ -78,15 +78,12 @@ export class Voronoi {
             (d) =>
               this.radius -
               (this.countries[d.country_code]
-                ? this.countries[d.country_code] * 2
+                ? this.countries[d.country_code] * 4
                 : 0)
           )
           .attr("fill", color)
-          .append("svg:title").text("HELO") 
-      )
-      .call((g) => g.append("circle").attr("r", 2.5).append("svg:title").text("HELO"))
-      .append("svg:title")
-      .text(function(d) { return "foo bar"; });
+      );
+      //.call((g) => g.append("circle").attr("r", 2.5));
 
     this.svgs.push(svg);
   }

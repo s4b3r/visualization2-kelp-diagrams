@@ -39,7 +39,7 @@ scene.add(lightAmbient);
 
 // Create sphere for voronoi projection
 const voronoiMaterial = new THREE.MeshPhongMaterial({
-  map: THREE.ImageUtils.loadTexture('assets/world2.jpg'),
+  map: new THREE.Texture(),
   transparent : true,
   opacity: 1,
   blending: THREE.AdditiveAlphaBlending,
@@ -48,7 +48,7 @@ const voronoiMaterial = new THREE.MeshPhongMaterial({
 voronoiMaterial.map.minFilter = THREE.LinearFilter;
 
 const voronoiSphere = new THREE.Mesh(
-  new THREE.SphereGeometry(4.5, 100, 100),
+  new THREE.SphereGeometry(4.51, 100, 100),
   voronoiMaterial
 );
 
@@ -56,34 +56,16 @@ scene.add(voronoiSphere);
 
 // Create sphere with country borders
 const worldBordersMaterial = new THREE.MeshPhongMaterial({
-  map: THREE.ImageUtils.loadTexture('assets/world2.jpg'),
-  transparent : true,
-  opacity: 0.7,
-  blending: THREE.AdditiveAlphaBlending
+  map: new THREE.Texture()
 });
-voronoiMaterial.map.minFilter = THREE.LinearFilter;
+worldBordersMaterial.map.minFilter = THREE.LinearFilter;
 
 const worldBordersSphere = new THREE.Mesh(
-  new THREE.SphereGeometry(4.51, 100, 100),
+  new THREE.SphereGeometry(4.5, 100, 100),
   worldBordersMaterial
 );
 
 scene.add(worldBordersSphere);
-
-// Create sphere with world texture
-const worldAlbedoMaterial = new THREE.MeshPhongMaterial({
-  map: THREE.ImageUtils.loadTexture('assets/world2.jpg'),
-});
-voronoiMaterial.map.minFilter = THREE.LinearFilter;
-
-const worldAlbedoSphere = new THREE.Mesh(
-  new THREE.SphereGeometry(4.49, 100, 100),
-  worldAlbedoMaterial
-);
-
-scene.add(worldAlbedoSphere);
-
-//
 
 camera.position.x = 5;
 camera.position.y = 5;
@@ -97,39 +79,20 @@ function setVoronoiTexture(image): void {
   voronoiMaterial.map = texture;
 }
 
-function setWorldAlbedoTexture(image): void {
-  const texture = new THREE.Texture(image);
-  texture.needsUpdate = true;
-  worldAlbedoMaterial.map = texture;
-}
-/**
- * This function connects country borders image to the Three.js canvas
- * @param image The image with country borders
- */
 function setCountryBordersTexture(image): void {
   const texture = new THREE.Texture(image);
   texture.needsUpdate = true;
   worldBordersMaterial.map = texture;
 }
 
-export { setVoronoiTexture, setWorldAlbedoTexture, setCountryBordersTexture };
-
-function animate(): void {
-  requestAnimationFrame(animate);
-  render();
-  controls.update();
-}
-  
-function render(): void {
-  renderer.render(scene, camera);
-}
+export { setVoronoiTexture, setCountryBordersTexture };
 
 const worldTexture = new WorldTexture();
-worldTexture.createAlbedoImage();
+//worldTexture.createAlbedoImage();
 worldTexture.createCountryBordersImage();
 
-const imageWidth = 1200;
-const imageHeight = 800;
+const imageWidth = 4800;
+const imageHeight = 3200;
 const voronoi = new Voronoi(imageWidth, imageHeight);
 const linking = new Linking(scene, 4.5);
 
@@ -139,9 +102,9 @@ const data = new Data(rawdata, 4.5, imageWidth, imageHeight)
 const wireframeToggle = document.getElementById('wireframe');
 wireframeToggle.addEventListener('click', function(value) {
   if ((<any>wireframeToggle).checked) {
-    worldAlbedoMaterial.wireframe = true;
+    worldBordersMaterial.wireframe = true;
   } else {
-    worldAlbedoMaterial.wireframe = false;
+    worldBordersMaterial.wireframe = false;
   }
 });
 
@@ -152,6 +115,10 @@ let dijkstra = new Dijkstra()
 
 checkboxes.forEach(function(checkbox) {
   checkbox.addEventListener('change', function() {
+    if (Array.from(document.getElementsByTagName('input')).map((input) => +input.checked).reduce((accumulator, currentValue) => accumulator + currentValue) > 3) {
+      (<HTMLInputElement>checkbox).checked = false;
+      return;
+    }
     enabledSettings = 
       Array.from(checkboxes)
       .filter(i => (<any>i).checked)
@@ -215,6 +182,136 @@ checkboxes.forEach(function(checkbox) {
   })
 });
 
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
+let x = 0;
+let y = 0;
 
+function onMouseMove( event ) {
+	mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+	mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+  x = event.clientX;
+  y = event.clientY;
+}
+
+function animate(): void {
+  requestAnimationFrame(animate);
+  render();
+  controls.update();
+}
+
+const tooltip = document.createElement('div');
+var tooltipText = document.createTextNode("Hi there and greetingssss!");
+tooltip.appendChild(tooltipText);
+document.body.insertBefore(tooltip, document.body.firstElementChild);
+tooltip.style.color = 'white';
+tooltip.style.position = 'absolute';
+tooltip.style.top = '0px';
+tooltip.style.left = '0px';
+tooltip.style.height = 'fit-content';
+tooltipText.textContent = 'changes';
+tooltip.style.visibility = 'hidden';
+tooltip.style.display = 'flex';
+tooltip.style.flexDirection = 'column';
+
+const boxes = document.createElement('div');
+boxes.style.flexDirection = 'row';
+boxes.style.display = 'flex';
+boxes.style.width = '-webkit-fill-available';
+boxes.style.paddingTop = '60px';
+boxes.style.justifyContent = 'space-around';
+
+const euBox = document.createElement('div');
+euBox.className = 'box eu';
+euBox.style.position = 'relative';
+
+const natoBox = document.createElement('div');
+natoBox.className = 'box nato';
+natoBox.style.position = 'relative';
+
+const oecdBox = document.createElement('div');
+oecdBox.className = 'box oecd';
+oecdBox.style.position = 'relative';
+
+const g7Box = document.createElement('div');
+g7Box.className = 'box g7';
+g7Box.style.position = 'relative';
+
+const unBox = document.createElement('div');
+unBox.className = 'box un';
+unBox.style.position = 'relative';
+
+const osceBox = document.createElement('div');
+osceBox.className = 'box osce';
+osceBox.style.position = 'relative';
+
+const iloBox = document.createElement('div');
+iloBox.className = 'box ilo';
+iloBox.style.position = 'relative';
+
+const coeBox = document.createElement('div');
+coeBox.className = 'box coe';
+coeBox.style.position = 'relative';
+
+const interpolBox = document.createElement('div');
+interpolBox.className = 'box interpol';
+interpolBox.style.position = 'relative';
+
+const uncfccBox = document.createElement('div');
+uncfccBox.className = 'box uncfcc';
+uncfccBox.style.position = 'relative';
+
+tooltip.appendChild(boxes);
+
+function render(): void {
+  raycaster.setFromCamera( mouse, camera );
+  const intersects = raycaster.intersectObjects( scene.children[4].children );
+  if (intersects.length > 0 && (tooltipText.textContent != intersects[0].object.userData.country || tooltip.style.visibility == 'hidden')) {
+    tooltipText.textContent = intersects[0].object.userData.country;
+    tooltip.style.visibility = 'visible';
+    tooltip.style.left = `${x}px`;
+    tooltip.style.top = `${y}px`;
+    const dp = data.data.filter((dp) => dp.country == intersects[0].object.userData.country)[0]
+    while (boxes.firstChild) {
+      boxes.removeChild(boxes.firstChild);
+    }
+    if (dp.in_eu) {
+      console.log('eu');
+      boxes.appendChild(euBox);
+    }
+    if (dp.in_uncfcc) {
+      boxes.appendChild(uncfccBox);
+    }
+    if (dp.in_nato) {
+      boxes.appendChild(natoBox);
+    }
+    if (dp.in_oecd) {
+      boxes.appendChild(oecdBox);
+    }
+    if (dp.in_g7) {
+      boxes.appendChild(g7Box);
+    }
+    if (dp.in_un) {
+      boxes.appendChild(unBox);
+    }
+    if (dp.in_osce) {
+      boxes.appendChild(osceBox);
+    }
+    if (dp.in_coe) {
+      boxes.appendChild(coeBox);
+    }
+    if (dp.in_ilo) {
+      boxes.appendChild(iloBox);
+    }
+    if (dp.in_interpol) {
+      boxes.appendChild(interpolBox);
+    }
+  } else if (intersects.length == 0) {
+    tooltip.style.visibility = 'hidden';
+  }
+  renderer.render(scene, camera);
+}
+
+window.addEventListener( 'mousemove', onMouseMove, false );
 
 animate();

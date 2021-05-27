@@ -198,7 +198,6 @@ export class Data {
       }
 
       if (country.in_coe) {
-        console.log(country)
         this.countries.coe.push(country);
         this.datapoints_2d.coe_2d.push(
           this.mapTo2D(country, imageWidth, imageHeight)
