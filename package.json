@@ -19,6 +19,7 @@
     "progress-bar-webpack-plugin": "latest",
     "style-loader": "latest",
     "ts-loader": "latest",
+    "typedoc": "^0.20.36",
     "typescript": "latest",
     "webpack": "latest",
     "webpack-cli": "latest",

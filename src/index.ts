@@ -1,3 +1,14 @@
+// index.ts
+/**
+ * This is the doc comment for index.ts
+ *
+ * index.ts serves as an entry point for the TypeScript code.
+ * The canvas and everything that is drawn on it are being initialized here. 
+ * Also, the voronoi mesh for the Three.js scene is created alongside projecting a 2d image of the map of the world and their borders into a 3d sphere.
+ * 
+ * @module index.ts
+ */
+
 import './style.css';
 
 import * as THREE from 'three';
@@ -10,7 +21,9 @@ import { Data, I2DCountryData, I3DCountryData } from './data';
 import * as rawdata from '../data.json';
 import { Dijkstra } from './dijkstra';
 
-// Scene setup
+/**
+* This comment _supports_ [Markdown](https://marked.js.org/)
+*/
 const scene = new THREE.Scene();
 scene.background = new THREE.Color( 0xF );
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -89,7 +102,10 @@ function setWorldAlbedoTexture(image): void {
   texture.needsUpdate = true;
   worldAlbedoMaterial.map = texture;
 }
-
+/**
+ * This function connects country borders image to the Three.js canvas
+ * @param image The image with country borders
+ */
 function setCountryBordersTexture(image): void {
   const texture = new THREE.Texture(image);
   texture.needsUpdate = true;
@@ -103,7 +119,7 @@ function animate(): void {
   render();
   controls.update();
 }
-
+  
 function render(): void {
   renderer.render(scene, camera);
 }
@@ -198,5 +214,7 @@ checkboxes.forEach(function(checkbox) {
     voronoi.voronoiToCanvas();
   })
 });
+
+
 
 animate();
