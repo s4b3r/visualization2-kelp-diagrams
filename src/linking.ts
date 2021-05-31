@@ -92,7 +92,9 @@ export class Linking {
                     colors.push(link_.color);
                 }
             });
-            var m = new THREE.MeshBasicMaterial();
+            var m = new THREE.MeshBasicMaterial({
+                map: new THREE.Texture()
+            });
 
             if (colors.length > 1) {
                 console.log('colors.length', colors.length);
@@ -121,22 +123,18 @@ export class Linking {
                     const texture = new THREE.Texture(canvas.node());
                     texture.needsUpdate = true;
                     m.map = texture;
-                    var curve = new THREE.CubicBezierCurve3(start, mid1, mid2, end);
-                    var g = new THREE.TubeGeometry(curve, 200, 0.01, 10, false);
-                    const mesh = new THREE.Mesh(g, m);
-                    that.links.add(mesh);
-                    //image.remove();
-                    //canvas.remove();
-                    that.linkedLinks.push({country1: startpoint.country, country2: endpoint.country, color: color, link: mesh});
+                    image.remove();
+                    canvas.remove();
                 };
             } else {
-                const curve = new THREE.CubicBezierCurve3(start, mid1, mid2, end);
+                m.map = null;
                 m.color = color;
-                const g = new THREE.TubeGeometry(curve, 100, 0.01, 10, false);
-                const mesh = new THREE.Mesh(g, m);
-                this.links.add(mesh);
-                this.linkedLinks.push({country1: startpoint.country, country2: endpoint.country, color: color, link: mesh});
             }
+            const curve = new THREE.CubicBezierCurve3(start, mid1, mid2, end);
+            const g = new THREE.TubeGeometry(curve, 100, 0.01, 10, false);
+            const mesh = new THREE.Mesh(g, m);
+            this.links.add(mesh);
+            this.linkedLinks.push({country1: startpoint.country, country2: endpoint.country, color: color, link: mesh});
             this.intersectionInfoBoxes.add(startHover);
         }
 
