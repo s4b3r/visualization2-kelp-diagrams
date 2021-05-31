@@ -70,24 +70,11 @@ export class Linking {
                 midCoord2[0],
                 this.radius + altitude
             );
-
-            let counter = 0;
             let colors = [];
             colors.push(color);
             this.linkedLinks.forEach((link_) => {
                 if ((link_.country1 == startpoint.country && link_.country2 == endpoint.country) ||
                     (link_.country2 == startpoint.country && link_.country1 == endpoint.country)) {
-                    counter += 1;
-                    mid1 = this.coordinateToPosition(
-                        midCoord1[1],
-                        midCoord1[0],
-                        this.radius + altitude + counter * 0.05
-                    );
-                    mid2 = this.coordinateToPosition(
-                        midCoord2[1],
-                        midCoord2[0],
-                        this.radius + altitude + counter * 0.05
-                    );
                     this.links.remove(link_.link);
                     colors.push(link_.color);
                 }
@@ -101,25 +88,25 @@ export class Linking {
                 const canvas = d3
                 .select("body")
                 .append("canvas")
-                .attr("width", 1600)
-                .attr("height", 1600);
+                .attr("width", 800)
+                .attr("height", 20);
                 var drawingContext = canvas.node().getContext("2d");
                 const numberStripes = 12;
                 for (var i=0;i < numberStripes;i++){
-                    const thickness = 1600 / numberStripes;
+                    const thickness = 800 / numberStripes;
                     drawingContext.beginPath();
                     const color_ = colors[i % colors.length];
                     drawingContext.strokeStyle = `rgb(${color_.r * 255}, ${color_.g * 255}, ${color_.b * 255})`;
                     drawingContext.lineWidth = thickness;
                     drawingContext.moveTo(i*thickness + thickness/2,0);
-                    drawingContext.lineTo(i*thickness+thickness/2,1600);
+                    drawingContext.lineTo(i*thickness+thickness/2,20);
                     drawingContext.stroke();
                 }
                 const image = document.createElement("img");
                 image.src = canvas.node().toDataURL();
                 const that = this;
                 image.onload = function () {
-                    drawingContext.drawImage(image, 0, 0, 1600, 1600);
+                    drawingContext.drawImage(image, 0, 0, 800, 20);
                     const texture = new THREE.Texture(canvas.node());
                     texture.needsUpdate = true;
                     m.map = texture;
