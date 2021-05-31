@@ -34,8 +34,6 @@ export class Voronoi {
       this.countries[dp.country_code] = this.countries[dp.country_code]
         ? this.countries[dp.country_code] + 1
         : 1;
-        console.log(this.countries[dp.country_code])
-        console.log(this.countries[dp.country_code] + 1)
     });
 
     const voronoi = d3.Delaunay.from(

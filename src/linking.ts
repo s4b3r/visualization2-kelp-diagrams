@@ -3,12 +3,20 @@ import * as d3 from 'd3';
 
 import { I3DCountryDijkstraData } from './dijkstra';
 
+interface Link {
+    country1: string;
+    country2: string;
+    color: THREE.Color;
+    link: THREE.Mesh;
+}
+
 export class Linking {
 
     scene: THREE.Scene;
     radius: number;
     links: THREE.Group;
     intersectionInfoBoxes: THREE.Group;
+    linkedLinks: Link[] = [];
 
     constructor(scene: THREE.Scene, radius: number) {
         this.scene = scene;
@@ -20,6 +28,7 @@ export class Linking {
     }
 
     clear() {
+        this.linkedLinks = [];
         this.links.remove(...this.links.children);
     }
 
@@ -51,23 +60,83 @@ export class Linking {
             const midCoord1 = geoInterpolator(0.25);
             const midCoord2 = geoInterpolator(0.75);
     
-            const mid1 = this.coordinateToPosition(
+            let mid1 = this.coordinateToPosition(
                 midCoord1[1],
                 midCoord1[0],
                 this.radius + altitude
             );
-            const mid2 = this.coordinateToPosition(
+            let mid2 = this.coordinateToPosition(
                 midCoord2[1],
                 midCoord2[0],
                 this.radius + altitude
             );
-    
-            var curve = new THREE.CubicBezierCurve3(start, mid1, mid2, end);
-            var g = new THREE.TubeGeometry(curve, 100, 0.01, 10, false);
-            var m = new THREE.MeshBasicMaterial({
-                color: color
+
+            let counter = 0;
+            let colors = [];
+            colors.push(color);
+            this.linkedLinks.forEach((link_) => {
+                if ((link_.country1 == startpoint.country && link_.country2 == endpoint.country) ||
+                    (link_.country2 == startpoint.country && link_.country1 == endpoint.country)) {
+                    counter += 1;
+                    mid1 = this.coordinateToPosition(
+                        midCoord1[1],
+                        midCoord1[0],
+                        this.radius + altitude + counter * 0.05
+                    );
+                    mid2 = this.coordinateToPosition(
+                        midCoord2[1],
+                        midCoord2[0],
+                        this.radius + altitude + counter * 0.05
+                    );
+                    this.links.remove(link_.link);
+                    colors.push(link_.color);
+                }
             });
-            this.links.add(new THREE.Mesh(g, m));
+            var m = new THREE.MeshBasicMaterial();
+
+            if (colors.length > 1) {
+                console.log('colors.length', colors.length);
+                const canvas = d3
+                .select("body")
+                .append("canvas")
+                .attr("width", 1600)
+                .attr("height", 1600);
+                var drawingContext = canvas.node().getContext("2d");
+                const numberStripes = 12;
+                for (var i=0;i < numberStripes;i++){
+                    const thickness = 1600 / numberStripes;
+                    drawingContext.beginPath();
+                    const color_ = colors[i % colors.length];
+                    drawingContext.strokeStyle = `rgb(${color_.r * 255}, ${color_.g * 255}, ${color_.b * 255})`;
+                    drawingContext.lineWidth = thickness;
+                    drawingContext.moveTo(i*thickness + thickness/2,0);
+                    drawingContext.lineTo(i*thickness+thickness/2,1600);
+                    drawingContext.stroke();
+                }
+                const image = document.createElement("img");
+                image.src = canvas.node().toDataURL();
+                const that = this;
+                image.onload = function () {
+                    drawingContext.drawImage(image, 0, 0, 1600, 1600);
+                    const texture = new THREE.Texture(canvas.node());
+                    texture.needsUpdate = true;
+                    m.map = texture;
+                    var curve = new THREE.CubicBezierCurve3(start, mid1, mid2, end);
+                    var g = new THREE.TubeGeometry(curve, 200, 0.01, 10, false);
+                    const mesh = new THREE.Mesh(g, m);
+                    that.links.add(mesh);
+                    //image.remove();
+                    //canvas.remove();
+                    that.linkedLinks.push({country1: startpoint.country, country2: endpoint.country, color: color, link: mesh});
+                };
+            } else {
+                const curve = new THREE.CubicBezierCurve3(start, mid1, mid2, end);
+                m.color = color;
+                const g = new THREE.TubeGeometry(curve, 100, 0.01, 10, false);
+                const mesh = new THREE.Mesh(g, m);
+                this.links.add(mesh);
+                this.linkedLinks.push({country1: startpoint.country, country2: endpoint.country, color: color, link: mesh});
+            }
             this.intersectionInfoBoxes.add(startHover);
         }
 
