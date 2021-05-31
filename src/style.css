@@ -20,6 +20,10 @@ canvas{
   height: 100%;
 }
 
+hr.solid {
+  border-top: 3px solid #bbb;
+}
+
 /* Customize the label (the container) */
 .container {
   display: block;
@@ -141,6 +145,3 @@ h1{
 .uncfcc {
   background-color: rgb(10, 58, 18);
 }
-
-
-

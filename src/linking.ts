@@ -3,12 +3,20 @@ import * as d3 from 'd3';
 
 import { I3DCountryDijkstraData } from './dijkstra';
 
+interface Link {
+    country1: string;
+    country2: string;
+    color: THREE.Color;
+    link: THREE.Mesh;
+}
+
 export class Linking {
 
     scene: THREE.Scene;
     radius: number;
     links: THREE.Group;
     intersectionInfoBoxes: THREE.Group;
+    linkedLinks: Link[] = [];
 
     constructor(scene: THREE.Scene, radius: number) {
         this.scene = scene;
@@ -20,6 +28,7 @@ export class Linking {
     }
 
     clear() {
+        this.linkedLinks = [];
         this.links.remove(...this.links.children);
     }
 
@@ -51,23 +60,68 @@ export class Linking {
             const midCoord1 = geoInterpolator(0.25);
             const midCoord2 = geoInterpolator(0.75);
     
-            const mid1 = this.coordinateToPosition(
+            let mid1 = this.coordinateToPosition(
                 midCoord1[1],
                 midCoord1[0],
                 this.radius + altitude
             );
-            const mid2 = this.coordinateToPosition(
+            let mid2 = this.coordinateToPosition(
                 midCoord2[1],
                 midCoord2[0],
                 this.radius + altitude
             );
-    
-            var curve = new THREE.CubicBezierCurve3(start, mid1, mid2, end);
-            var g = new THREE.TubeGeometry(curve, 100, 0.01, 10, false);
-            var m = new THREE.MeshBasicMaterial({
-                color: color
+            let colors = [];
+            colors.push(color);
+            this.linkedLinks.forEach((link_) => {
+                if ((link_.country1 == startpoint.country && link_.country2 == endpoint.country) ||
+                    (link_.country2 == startpoint.country && link_.country1 == endpoint.country)) {
+                    this.links.remove(link_.link);
+                    colors.push(link_.color);
+                }
             });
-            this.links.add(new THREE.Mesh(g, m));
+            var m = new THREE.MeshBasicMaterial({
+                map: new THREE.Texture()
+            });
+
+            if (colors.length > 1) {
+                console.log('colors.length', colors.length);
+                const canvas = d3
+                .select("body")
+                .append("canvas")
+                .attr("width", 800)
+                .attr("height", 20);
+                var drawingContext = canvas.node().getContext("2d");
+                const numberStripes = 12;
+                for (var i=0;i < numberStripes;i++){
+                    const thickness = 800 / numberStripes;
+                    drawingContext.beginPath();
+                    const color_ = colors[i % colors.length];
+                    drawingContext.strokeStyle = `rgb(${color_.r * 255}, ${color_.g * 255}, ${color_.b * 255})`;
+                    drawingContext.lineWidth = thickness;
+                    drawingContext.moveTo(i*thickness + thickness/2,0);
+                    drawingContext.lineTo(i*thickness+thickness/2,20);
+                    drawingContext.stroke();
+                }
+                const image = document.createElement("img");
+                image.src = canvas.node().toDataURL();
+                const that = this;
+                image.onload = function () {
+                    drawingContext.drawImage(image, 0, 0, 800, 20);
+                    const texture = new THREE.Texture(canvas.node());
+                    texture.needsUpdate = true;
+                    m.map = texture;
+                    image.remove();
+                    canvas.remove();
+                };
+            } else {
+                m.map = null;
+                m.color = color;
+            }
+            const curve = new THREE.CubicBezierCurve3(start, mid1, mid2, end);
+            const g = new THREE.TubeGeometry(curve, 100, 0.01, 10, false);
+            const mesh = new THREE.Mesh(g, m);
+            this.links.add(mesh);
+            this.linkedLinks.push({country1: startpoint.country, country2: endpoint.country, color: color, link: mesh});
             this.intersectionInfoBoxes.add(startHover);
         }
 
