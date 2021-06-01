@@ -1,3 +1,16 @@
+// data.ts
+/**
+ * Data class.
+ *
+ * data.ts contains the interfaces for the data that has been scraped previously and is stored in data.json
+ * Also, preprocessing for the data is done here to transform it into a correct json format which can then be used by the application 
+ * @module data.ts
+ */
+
+
+/**
+ * ICountryData is an interface for the data for one country
+ */
 export interface ICountryData {
   country_code: string;
   country: string;
@@ -14,18 +27,27 @@ export interface ICountryData {
   in_ilo: boolean;
   in_interpol: boolean;
 }
-
+/**
+ * I3DCountryData is an extension to ICountryData interface, adding x, y and z coordinates
+ * allowing the connections between countries to the correct location in the 3d sphere
+ * 
+ */
 export interface I3DCountryData extends ICountryData {
   x: number;
   y: number;
   z: number;
 }
-
+/**
+ * I2DCountryData is an extension to ICountryData interface, adding x and y coordinates
+ * allowing the projection of the data to the correct location on the map
+ */
 export interface I2DCountryData extends ICountryData {
   x: number;
   y: number;
 }
-
+/**
+ * ICountries interface has all the organizations with list of countries belonging to them. 
+ */
 export interface ICountries {
   uncfcc: ICountryData[];
   eu: ICountryData[];
@@ -38,6 +60,10 @@ export interface ICountries {
   ilo: ICountryData[];
   interpol: ICountryData[];
 }
+
+/**
+ * contains the 2d datapoints for the countries separated in each organization
+ */
 export interface I2DDataPoints {
   uncfcc_2d: I2DCountryData[];
   eu_2d: I2DCountryData[];
@@ -50,6 +76,10 @@ export interface I2DDataPoints {
   ilo_2d: I2DCountryData[];
   interpol_2d: I2DCountryData[];
 }
+
+/**
+ * contains the 3d datapoints for the countries separated in each organization
+ */
 export interface I3DDataPoints {
   uncfcc_3d: I3DCountryData[];
   eu_3d: I3DCountryData[];
@@ -75,6 +105,19 @@ export interface I3DDataPoints {
 # ILO
 # INTERPOL
 */
+
+/**
+ * Data class is initialized, for example, like this:
+ * ```
+ * const data = new Data(rawdata, 4.5, imageWidth, imageHeight)
+ * ```
+ * where: 
+ *  - `rawdata` is the raw data extracted from data.json
+ *  - `4.5` is the radius, which the data points will have in the 
+ *  - `imageWidth` and `imageHeight`is a constant which is required for mapping the data coordinates in to the 2d map
+ * 
+ * When this class is initialized, the preprocessing of the data is done in a loop which adds each country to all the correct organizations and maps coordinates into 2d and 3d.
+ */
 export class Data {
   // define variables
   data: ICountryData[];
@@ -211,7 +254,12 @@ export class Data {
       }
     });
   }
-
+/**
+ * Maps the coordinates of a country in to the 3d Sphere.
+ * @param datapoint 
+ * @param radius 
+ * @returns datapoints3D
+ */
   mapTo3D(datapoint: ICountryData, radius: number): I3DCountryData {
     let datapoints3D: I3DCountryData = Object.assign({}, datapoint, {
       x: 0,
@@ -233,7 +281,13 @@ export class Data {
     datapoints3D.z = z;
     return datapoints3D;
   }
-
+/**
+ * Maps the coordinates of a country in the 2d map of the worlds, given the height and width of the image.
+ * @param datapoint 
+ * @param imageWidth 
+ * @param imageHeight 
+ * @returns 
+ */
   mapTo2D(
     datapoint: ICountryData,
     imageWidth: number,

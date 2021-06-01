@@ -1,3 +1,9 @@
+// world.ts
+/**
+ * World texture class, adds the world image and the borders in to the canvas. Uses topojson for creating the borders 
+ * @module world.ts
+ * 
+ */
 import * as d3 from 'd3';
 import * as topojson from 'topojson';
 import { setCountryBordersTexture } from './index';

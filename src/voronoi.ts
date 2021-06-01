@@ -1,3 +1,8 @@
+// voronoi.ts
+/**
+ * Class for creating the voronoi diagram from the country datasets, which allows the distance calculations according to the Kelp Diagram paper
+ * @module voronoi.ts
+ */
 import * as d3 from "d3";
 import * as THREE from "three";
 
@@ -22,7 +27,11 @@ export class Voronoi {
     this.width = imageWidth;
     this.height = imageHeight;
   }
-
+/**
+ * Creates the Voronoi diagram from the 2d datapoints 
+ * @param datapoints2d 
+ * @param color 
+ */
   createVoronoi(datapoints2d: I2DCountryData[], color: string): void {
     const svg = d3
       .select("body")
@@ -76,7 +85,9 @@ export class Voronoi {
 
     this.svgs.push(svg);
   }
-
+/**
+ * Applies the voronoi diagram in to the canvas
+ */
   voronoiToCanvas() {
     this.canvas = d3
       .select("body")
@@ -108,6 +119,9 @@ export class Voronoi {
     }
   }
 
+  /**
+   * destroys the canvas
+   */
   teardown() {
     this.canvas.remove();
     this.svgs.forEach((svg) => {
