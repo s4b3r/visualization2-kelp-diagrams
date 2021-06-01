@@ -18,10 +18,10 @@
     "jsdom-global": "^3.0.2",
     "progress-bar-webpack-plugin": "latest",
     "style-loader": "latest",
-    "ts-loader": "latest",
-    "typescript": "latest",
+    "ts-loader": "^9.1.1",
+    "typescript": "^4.2.4",
     "webpack": "latest",
-    "webpack-cli": "latest",
+    "webpack-cli": "^4.6.0",
     "webpack-dev-server": "latest"
   },
   "dependencies": {
