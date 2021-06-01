@@ -99,6 +99,8 @@ const linking = new Linking(scene, 4.5);
 // Collect the data
 const data = new Data(rawdata, 4.5, imageWidth, imageHeight)
 
+// wireframe is not adding value to the application
+/*
 const wireframeToggle = document.getElementById('wireframe');
 wireframeToggle.addEventListener('click', function(value) {
   if ((<any>wireframeToggle).checked) {
@@ -107,6 +109,7 @@ wireframeToggle.addEventListener('click', function(value) {
     worldBordersMaterial.wireframe = false;
   }
 });
+*/
 
 var checkboxes = document.querySelectorAll("input[type=checkbox]");
 let enabledSettings = []
