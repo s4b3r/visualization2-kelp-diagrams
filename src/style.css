@@ -156,6 +156,7 @@ div .info-box {
   height: 0.2rem;
   top: 0px;
   left: 195px;
+  z-index:999;
 }
 
 .info-container {

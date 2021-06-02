@@ -117,7 +117,7 @@ let enabledSettings = []
 let dijkstra = new Dijkstra()
 
 checkboxes.forEach(function(checkbox) {
-  checkbox.addEventListener('change', function() {
+  checkbox.addEventListener('change', function(e: Event) {
     if (Array.from(document.getElementsByTagName('input')).map((input) => +input.checked).reduce((accumulator, currentValue) => accumulator + currentValue) > 3) {
       (<HTMLInputElement>checkbox).checked = false;
       return;
@@ -321,7 +321,8 @@ let infoboxes = document.querySelectorAll("div[class=info-box]");
 
 infoboxes.forEach((btn: HTMLElement) => {
   btn.addEventListener('click', (e: any) => {
-    let value = (document.getElementById(btn.id))
+    e.stopPropagation()
+    e.preventDefault()
     showInfo(e.srcElement.id)
   })
 })
