@@ -6,7 +6,7 @@
  * Also, preprocessing for the data is done here to transform it into a correct json format which can then be used by the application 
  * @module data.ts
  */
-
+import * as organization_infos from '../assets/organization_info.json'
 
 /**
  * ICountryData is an interface for the data for one country
@@ -48,6 +48,18 @@ export interface I2DCountryData extends ICountryData {
 /**
  * ICountries interface has all the organizations with list of countries belonging to them. 
  */
+
+export interface IOrganizationInfo {
+  eu: string;
+  nato: string;
+  oecd: string;
+  g7: string;
+  uncfcc: string;
+  un: string;
+  coe: string;
+  interpol: string;
+  ilo: string;
+}
 export interface ICountries {
   uncfcc: ICountryData[];
   eu: ICountryData[];
@@ -59,6 +71,7 @@ export interface ICountries {
   coe: ICountryData[];
   ilo: ICountryData[];
   interpol: ICountryData[];
+  org_infos?: IOrganizationInfo;
 }
 
 /**
@@ -124,6 +137,7 @@ export class Data {
   countries: ICountries;
   datapoints_2d: I2DDataPoints;
   datapoints_3d: I3DDataPoints;
+  organization_infos: IOrganizationInfo
 
   constructor(
     data: ICountryData[],
@@ -253,6 +267,7 @@ export class Data {
         this.datapoints_3d.osce_3d.push(this.mapTo3D(country, radius));
       }
     });
+    this.countries.org_infos = organization_infos;
   }
 /**
  * Maps the coordinates of a country in to the 3d Sphere.

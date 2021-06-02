@@ -17,7 +17,7 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls"
 import { Voronoi } from './voronoi';
 import { WorldTexture } from './world';
 import { Linking } from './linking';
-import { Data, I2DCountryData, I3DCountryData } from './data';
+import { Data, I2DCountryData, I3DCountryData, ICountryData } from './data';
 import * as rawdata from '../data.json';
 import { Dijkstra } from './dijkstra';
 
@@ -317,4 +317,42 @@ function render(): void {
 
 window.addEventListener( 'mousemove', onMouseMove, false );
 
+let infoboxes = document.querySelectorAll("div[class=info-box]");
+
+infoboxes.forEach((btn: HTMLElement) => {
+  btn.addEventListener('click', (e: any) => {
+    let value = (document.getElementById(btn.id))
+    showInfo(e.srcElement.id)
+  })
+})
+
+let closeInfoContainer = document.getElementsByClassName('hide-btn')[0]
+closeInfoContainer.addEventListener('click', (e: any) => {
+  closeInfo()
+});
+
+let headerElement = document.getElementsByClassName('organization-name')[0]
+let countryListElement = document.getElementsByClassName('country-list')[0]
+let orgInfoElement = document.getElementsByClassName('org-info-text')[0]
+const showInfo = (org: string) => {
+  let container = document.getElementsByClassName('info-container')[0]
+  container.className = 'show info-container'
+  console.log(org)
+  let orgName = org.split('-')[0]
+  let countries = data.countries[orgName]
+  let countryNames = countries.map((element: ICountryData) => {
+  console.log(element)
+    return "<li>" + element.country + "</li>"
+  }).toString();
+  countryNames = countryNames.replace(/,/g, '')
+  let organizationInfo = data.countries.org_infos[orgName]
+  headerElement.innerHTML = orgName
+  countryListElement.innerHTML = countryNames
+  orgInfoElement.innerHTML = organizationInfo
+}
+
+const closeInfo = () => {
+  let container = document.getElementsByClassName('info-container')[0]
+  container.className = 'hide info-container'
+}
 animate();
