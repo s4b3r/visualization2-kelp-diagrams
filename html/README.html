@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <title>visualization2-kelp-diagrams</title>
+        <style>
+</style>
+        
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item { list-style-type: none; } .task-list-item-checkbox { margin-left: -20px; vertical-align: middle; }
+</style>
+        
+        
+        
+    </head>
+    <body class="vscode-body vscode-light">
+        <h1 id="visualization2-kelp-diagrams">visualization2-kelp-diagrams</h1>
+<p>This project is an proof of concept visualisation of countries belonging in different intergovernmental organizations using Threejs and D3.js. Furthermore, this project serves as an implementation of Kelp Diagrams visualisation, presented in the paper by Dinkla et. al. which can be found. <a href="https://onlinelibrary.wiley.com/doi/pdf/10.1111/j.1467-8659.2012.03080.x">here</a>.</p>
+<h2 id="usage">Usage</h2>
+<p>Start the project locally by running</p>
+<pre><code><code><div>npm install &amp;&amp; npm start
+</div></code></code></pre>
+<h2 id="algorithm">Algorithm</h2>
+<p>The algorithm is implemented in three main steps:</p>
+<ol>
+<li>Allocation of the element space
+<ul>
+<li>Creating a voronoi diagram with country coordinates (or locations in the canvas) as the datapoints</li>
+</ul>
+</li>
+<li>Allocation of additional link space: 2D or 3D
+<ul>
+<li>In 2D we calculate the minimal cost links between elements like so:
+<ul>
+<li>Find best-to-place link based on:
+<ul>
+<li>shortest path (dijkstra)</li>
+<li>angular bend</li>
+<li>intersections</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>and in 3D, such that overlapping doesn't happen</li>
+</ul>
+</li>
+<li>Generation of the visualisation
+<ul>
+<li>map the diagram in to the world texture</li>
+<li>project the texture over a 3D sphere.</li>
+</ul>
+</li>
+</ol>
+<p><img src="screenshot.jpg" alt="Example of how the visualisation looks like"></p>
+<h2 id="application-structure">Application structure</h2>
+<h3 id="directories">directories</h3>
+<p><em>assets</em> -directory contains all the necessary assets<br>
+<em>src</em> -directory contains the application source code</p>
+<h3 id="files">files</h3>
+<ul>
+<li><em>world.ts</em>: Add world map and borders in to the 3d sphere</li>
+<li><em>dijkstra.ts</em>: implementation of the dijkstra algorithm</li>
+<li><em>linking.ts</em>: Class which creates the links between datapoints in a set</li>
+<li><em>voronoi.ts</em>: Class for creating the voronoi diagram and adding it to the canvas</li>
+<li><em>data.ts</em>: Data class containing the data to be visualised</li>
+<li><em>index.ts</em>: Starting point, initialization of the application</li>
+<li><em>data.json</em>: Data for this project</li>
+<li><em>generate_dataset.ipynb</em>: Jupyter Notebook file, which scrapes all the data from various wikipedia pages and combines them into the final data.json file</li>
+</ul>
+<h2 id="data">Data</h2>
+<p>The data is parsed with the generate_dataset.ipynb using python from wikipedia pages of the different intergovernmen organisations. Snapshot of the first 10 rows of the data, including the column names:</p>
+<p><img src="file:////Users/santeri.friman/Code/assets/dataset_10_rows.png" alt="first 10 rows of the dataset"></p>
+<p>The function that scrapes the given wikipedia page and a list from it looks like this:</p>
+<pre><code class="language-python"><div><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">getWikipediaList</span>(<span class="hljs-params">url, table_index</span>):</span>
+    
+    page = requests.get(url)
+    soup = bs4.BeautifulSoup(page.content, <span class="hljs-string">&#x27;html.parser&#x27;</span>)
+    tables = soup.find_all(<span class="hljs-string">&#x27;table&#x27;</span>)
+    table = tables[table_index]
+    table_headers = []
+    row_headers = []
+    <span class="hljs-keyword">for</span> tx <span class="hljs-keyword">in</span> table.find_all(<span class="hljs-string">&#x27;th&#x27;</span>):
+        <span class="hljs-keyword">if</span> tx.has_attr(<span class="hljs-string">&#x27;scope&#x27;</span>):
+            <span class="hljs-keyword">if</span> tx[<span class="hljs-string">&#x27;scope&#x27;</span>] == <span class="hljs-string">&#x27;col&#x27;</span>:
+                table_headers.append(re.sub(<span class="hljs-string">&#x27;\[\d+\]&#x27;</span>,<span class="hljs-string">&#x27;&#x27;</span>,tx.text.replace(<span class="hljs-string">&#x27;\n&#x27;</span>, <span class="hljs-string">&#x27;&#x27;</span>)))
+            <span class="hljs-keyword">if</span> tx[<span class="hljs-string">&#x27;scope&#x27;</span>] == <span class="hljs-string">&#x27;row&#x27;</span>:
+                row_headers.append(re.sub(<span class="hljs-string">&#x27;\[\d+\]&#x27;</span>,<span class="hljs-string">&#x27;&#x27;</span>,tx.text.replace(<span class="hljs-string">&#x27;\n&#x27;</span>, <span class="hljs-string">&#x27;&#x27;</span>)))
+        <span class="hljs-keyword">else</span>:
+            table_headers.append(re.sub(<span class="hljs-string">&#x27;\[\d+\]&#x27;</span>,<span class="hljs-string">&#x27;&#x27;</span>,tx.text.replace(<span class="hljs-string">&#x27;\n&#x27;</span>, <span class="hljs-string">&#x27;&#x27;</span>)))
+    result = pd.DataFrame([[td.text <span class="hljs-keyword">for</span> td <span class="hljs-keyword">in</span> row.find_all(<span class="hljs-string">&#x27;td&#x27;</span>)] <span class="hljs-keyword">for</span> row <span class="hljs-keyword">in</span> table.tbody.find_all(<span class="hljs-string">&#x27;tr&#x27;</span>)])
+    print(row_headers)
+    result.columns = table_headers
+    result.replace(<span class="hljs-string">r&#x27;\n&#x27;</span>, <span class="hljs-string">&#x27;&#x27;</span>, regex = <span class="hljs-literal">True</span>, inplace = <span class="hljs-literal">True</span>)
+    result.replace(<span class="hljs-string">r&#x27;[^\x00-\x7F]+&#x27;</span>, <span class="hljs-string">&#x27;&#x27;</span>, regex = <span class="hljs-literal">True</span>, inplace = <span class="hljs-literal">True</span>)
+    result.drop([<span class="hljs-number">0</span>], inplace= <span class="hljs-literal">True</span>)
+    <span class="hljs-keyword">if</span>(len(row_headers)&gt;<span class="hljs-number">0</span>):
+        result = result.shift(periods=<span class="hljs-number">1</span>, axis=<span class="hljs-number">1</span>)
+
+        result = result[<span class="hljs-number">0</span>:len(result)<span class="hljs-number">-1</span>]
+        result[<span class="hljs-string">&#x27;Name&#x27;</span>] = row_headers
+    <span class="hljs-keyword">return</span> result
+</div></code></pre>
+<p>And this is how the function to retrieve each dataset as dataframe:</p>
+<pre><code class="language-python"><div>uncfcc_countries = getWikipediaList(url = <span class="hljs-string">&#x27;https://en.wikipedia.org/wiki/List_of_parties_to_the_United_Nations_Framework_Convention_on_Climate_Change&#x27;</span>, table_index=<span class="hljs-number">0</span>)
+eu_countries = getWikipediaList(<span class="hljs-string">&#x27;https://en.wikipedia.org/wiki/Member_state_of_the_European_Union&#x27;</span>, table_index=<span class="hljs-number">1</span>)
+nato_countries = getWikipediaList(<span class="hljs-string">&#x27;https://en.wikipedia.org/wiki/Member_states_of_NATO&#x27;</span>, <span class="hljs-number">0</span>)
+oecd_countries = getWikipediaList(<span class="hljs-string">&#x27;https://en.wikipedia.org/wiki/OECD&#x27;</span>, <span class="hljs-number">11</span>)
+g7_countries = getWikipediaList(<span class="hljs-string">&#x27;https://en.wikipedia.org/wiki/Group_of_Seven&#x27;</span>, <span class="hljs-number">4</span>)
+un_countries = getWikipediaList(<span class="hljs-string">&#x27;https://en.wikipedia.org/wiki/Member_states_of_the_United_Nations&#x27;</span>, <span class="hljs-number">1</span>)
+osce_countries = getWikipediaList(<span class="hljs-string">&#x27;https://en.wikipedia.org/wiki/Organization_for_Security_and_Co-operation_in_Europe&#x27;</span>, <span class="hljs-number">1</span>)
+coe_countries = getWikipediaList(<span class="hljs-string">&#x27;https://en.wikipedia.org/wiki/Member_states_of_the_Council_of_Europe&#x27;</span>, <span class="hljs-number">0</span>)
+<span class="hljs-comment"># eu standardizationz</span>
+eu_countries = eu_countries.apply(<span class="hljs-keyword">lambda</span> x: x.str.strip() <span class="hljs-keyword">if</span> x.dtype == <span class="hljs-string">&quot;object&quot;</span> <span class="hljs-keyword">else</span> x)
+eu_countries = eu_countries.apply(<span class="hljs-keyword">lambda</span> x: x.str.replace(<span class="hljs-string">&quot;\[.\]&quot;</span>, <span class="hljs-string">&quot;&quot;</span>) <span class="hljs-keyword">if</span> x.dtype == <span class="hljs-string">&quot;object&quot;</span> <span class="hljs-keyword">else</span> x)
+<span class="hljs-comment">#un standardization</span>
+un_countries = un_countries.apply(<span class="hljs-keyword">lambda</span> x: x.str.strip() <span class="hljs-keyword">if</span> x.dtype == <span class="hljs-string">&quot;object&quot;</span> <span class="hljs-keyword">else</span> x)
+un_countries = un_countries.apply(<span class="hljs-keyword">lambda</span> x: x.str.replace(<span class="hljs-string">&quot;\[.*\]&quot;</span>, <span class="hljs-string">&quot;&quot;</span>) <span class="hljs-keyword">if</span> x.dtype == <span class="hljs-string">&quot;object&quot;</span> <span class="hljs-keyword">else</span> x)
+<span class="hljs-comment">#osce standardization</span>
+germany_index = osce_countries[osce_countries[<span class="hljs-string">&#x27;State&#x27;</span>] == <span class="hljs-string">&#x27;Germany- as West Germany- as East Germany&#x27;</span>].index[<span class="hljs-number">0</span>]
+north_macedonia = osce_countries[osce_countries[<span class="hljs-string">&#x27;State&#x27;</span>] == <span class="hljs-string">&#x27;North Macedonia[Note 3][9]&#x27;</span>].index[<span class="hljs-number">0</span>]
+russia_index = osce_countries[osce_countries[<span class="hljs-string">&#x27;State&#x27;</span>] == <span class="hljs-string">&#x27;Russia (as Soviet Union)&#x27;</span>].index[<span class="hljs-number">0</span>]
+serbia_index = osce_countries[osce_countries[<span class="hljs-string">&#x27;State&#x27;</span>] == <span class="hljs-string">&#x27;Serbia (as Yugoslavia)&#x27;</span>].index[<span class="hljs-number">0</span>]
+
+osce_countries.at[germany_index, <span class="hljs-string">&#x27;State&#x27;</span>] = <span class="hljs-string">&#x27;Germany&#x27;</span>
+osce_countries.at[north_macedonia, <span class="hljs-string">&#x27;State&#x27;</span>] = <span class="hljs-string">&#x27;Macedonia [FYROM]&#x27;</span>
+osce_countries.at[russia_index, <span class="hljs-string">&#x27;State&#x27;</span>] = <span class="hljs-string">&#x27;Russia&#x27;</span>
+osce_countries.at[serbia_index, <span class="hljs-string">&#x27;State&#x27;</span>] = <span class="hljs-string">&#x27;Serbia&#x27;</span>
+</div></code></pre>
+<p>Combine them into one coordinates dataframe, which is the final form of the data to be used by the visualisation:</p>
+<pre><code class="language-python"><div>coordinates = pd.read_csv(<span class="hljs-string">&#x27;assets/world_country_and_usa_states_latitude_and_longitude_values.csv&#x27;</span>)
+coordinates = coordinates[[<span class="hljs-string">&#x27;country_code&#x27;</span>, <span class="hljs-string">&#x27;latitude&#x27;</span>, <span class="hljs-string">&#x27;longitude&#x27;</span>, <span class="hljs-string">&#x27;country&#x27;</span>]]
+coordinates[<span class="hljs-string">&#x27;in_eu&#x27;</span>] = np.where(coordinates[<span class="hljs-string">&#x27;country&#x27;</span>].isin(eu_countries[<span class="hljs-string">&#x27;Name&#x27;</span>].values), <span class="hljs-literal">True</span>, <span class="hljs-literal">False</span>)
+coordinates[<span class="hljs-string">&#x27;in_uncfcc&#x27;</span>] = np.where(coordinates[<span class="hljs-string">&#x27;country&#x27;</span>].isin(uncfcc_countries[<span class="hljs-string">&#x27;State&#x27;</span>].values), <span class="hljs-literal">True</span>, <span class="hljs-literal">False</span>)
+coordinates[<span class="hljs-string">&#x27;in_nato&#x27;</span>] = np.where(coordinates[<span class="hljs-string">&#x27;country&#x27;</span>].isin(nato_countries[<span class="hljs-string">&#x27;Member state&#x27;</span>].values), <span class="hljs-literal">True</span>, <span class="hljs-literal">False</span>)
+coordinates[<span class="hljs-string">&#x27;in_oecd&#x27;</span>] = np.where(coordinates[<span class="hljs-string">&#x27;country&#x27;</span>].isin(oecd_countries[<span class="hljs-string">&#x27;Country&#x27;</span>].values), <span class="hljs-literal">True</span>, <span class="hljs-literal">False</span>)
+coordinates[<span class="hljs-string">&#x27;in_g7&#x27;</span>] = np.where(coordinates[<span class="hljs-string">&#x27;country&#x27;</span>].isin(g7_countries[<span class="hljs-string">&#x27;Member&#x27;</span>].values), <span class="hljs-literal">True</span>, <span class="hljs-literal">False</span>)
+coordinates[<span class="hljs-string">&#x27;in_un&#x27;</span>] = np.where(coordinates[<span class="hljs-string">&#x27;country&#x27;</span>].isin(un_countries[<span class="hljs-string">&#x27;Member state&#x27;</span>].values), <span class="hljs-literal">True</span>, <span class="hljs-literal">False</span>)
+coordinates[<span class="hljs-string">&#x27;in_osce&#x27;</span>] = np.where(coordinates[<span class="hljs-string">&#x27;country&#x27;</span>].isin(osce_countries[<span class="hljs-string">&#x27;State&#x27;</span>].values), <span class="hljs-literal">True</span>, <span class="hljs-literal">False</span>)
+coordinates[<span class="hljs-string">&#x27;in_coe&#x27;</span>] = np.where(coordinates[<span class="hljs-string">&#x27;country&#x27;</span>].isin(coe_countries[<span class="hljs-string">&#x27;State&#x27;</span>].values), <span class="hljs-literal">True</span>, <span class="hljs-literal">False</span>)
+coordinates[<span class="hljs-string">&#x27;in_ilo&#x27;</span>] = np.where(coordinates[<span class="hljs-string">&#x27;country&#x27;</span>].isin(un_countries[<span class="hljs-string">&#x27;Member state&#x27;</span>].values), <span class="hljs-literal">True</span>, <span class="hljs-literal">False</span>)
+coordinates[<span class="hljs-string">&#x27;in_interpol&#x27;</span>] = np.where(coordinates[<span class="hljs-string">&#x27;country&#x27;</span>].isin(interpol_countries), <span class="hljs-literal">True</span>, <span class="hljs-literal">False</span>)
+not_in_ilo = [<span class="hljs-string">&#x27;Andorra&#x27;</span>, <span class="hljs-string">&#x27;Bhutan&#x27;</span>, <span class="hljs-string">&#x27;Liechtenstein&#x27;</span>, <span class="hljs-string">&#x27;Micronesia&#x27;</span>, <span class="hljs-string">&#x27;Monaco&#x27;</span>, <span class="hljs-string">&#x27;Nauru&#x27;</span>, <span class="hljs-string">&#x27;North Korea&#x27;</span>]
+
+<span class="hljs-keyword">for</span> country <span class="hljs-keyword">in</span> not_in_ilo:
+    coordinates.loc[coordinates[<span class="hljs-string">&#x27;country&#x27;</span>] == country, <span class="hljs-string">&#x27;in_ilo&#x27;</span>] = <span class="hljs-literal">False</span> 
+
+coordinates
+</div></code></pre>
+
+    </body>
+    </html>
