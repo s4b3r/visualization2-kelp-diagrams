@@ -1,6 +1,9 @@
 # visualization2-kelp-diagrams
-This project is an proof of concept visualisation of countries belonging in different intergovernmental organizations using Threejs and D3.js. Furthermore, this project serves as an implementation of Kelp Diagrams visualisation, presented in the paper by Dinkla et. al. which can be found. [here](https://onlinelibrary.wiley.com/doi/pdf/10.1111/j.1467-8659.2012.03080.x).
+This project is an proof of concept visualisation of countries belonging in different intergovernmental organizations using Three.js and D3.js. Furthermore, this project serves as an implementation of Kelp Diagrams visualisation, presented in the paper by Dinkla et. al. which can be found. [here](https://onlinelibrary.wiley.com/doi/pdf/10.1111/j.1467-8659.2012.03080.x).
 
+## Purpose
+
+This visualization supports to detect relations between alliances of countries (i.e integovernmental organizations). Kelp diagrams show depiction of both element locations and their set relations.
 ## Usage
 
 Start the project locally by running
@@ -8,6 +11,15 @@ Start the project locally by running
 ```
 npm install && npm start
 ```
+
+The project will run at localhost:8080.
+
+## Interaction with the application
+
+You can move the globe with your mouse. Select organizations under the dataset banner on the right, you can select up to three (3) organizations to be visualised. Furthermore, click the info circle next to each organisations name to show an info box on that organization.
+
+Hover over a point in the map to see which country it is and what organizations it belongs to. 
+
 ## Algorithm
 
 The algorithm is implemented in three main steps:
