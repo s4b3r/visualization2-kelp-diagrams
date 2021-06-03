@@ -22,7 +22,7 @@
     "typedoc": "^0.20.36",
     "typescript": "latest",
     "webpack": "latest",
-    "webpack-cli": "latest",
+    "webpack-cli": "^4.6.0",
     "webpack-dev-server": "latest"
   },
   "dependencies": {
